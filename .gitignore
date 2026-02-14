@@ -142,6 +142,7 @@ cython_debug/
 
 # VS Code
 .vscode/
+.docx
 
 # macOS
 .DS_Store
