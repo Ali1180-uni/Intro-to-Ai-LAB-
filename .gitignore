@@ -142,7 +142,7 @@ cython_debug/
 
 # VS Code
 .vscode/
-.docx
+WordFiles/
 
 # macOS
 .DS_Store
