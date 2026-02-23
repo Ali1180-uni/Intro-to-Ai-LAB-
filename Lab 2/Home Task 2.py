@@ -66,6 +66,56 @@ import turtle as t
 # t.hideturtle()
 # t.done()
 
+# Question 3
+# Write two programs that prompts the user to enter the center (x, y) coordinates, width and height of two rectangles and
+# circle as below. It determines that second rectangle/circle is inside the first or overlaps with the first as shown:
+
+x1,y1 = input("Enter the center coordinates of the first rectangle (x, y): ").split()
+x1, y1 = float(x1), float(y1)
+width1 = float(input("Enter the width of the first rectangle: "))
+height1 = float(input("Enter the height of the first rectangle: "))
+x2, y2 = input("Enter the center coordinates of the second rectangle (x, y): ").split()
+x2, y2 = float(x2), float(y2)
+width2 = float(input("Enter the width of the second rectangle: "))
+height2 = float(input("Enter the height of the second rectangle: "))
+
+distance = (x1**2 + y1**2)**0.5
+
+t.penup()
+t.goto(x1, y1)
+t.pendown()
+t.color("blue")
+for _ in range(2):
+    t.forward(width1)
+    t.left(90)
+    t.forward(height1)
+    t.left(90)
+t.penup()
+t.goto(x2, y2)
+t.pendown()
+t.color("red")
+for _ in range(2):
+    t.forward(width2)
+    t.left(90)
+    t.forward(height2)
+    t.left(90)
+t.penup()
+if distance < width1/2 and distance < height1/2:
+    t.goto(x2, y2 - 20)
+    t.write("Second rectangle is INSIDE the first rectangle", align="center")
+elif abs(x2) < (width1/2 + width2/2) and abs(y2) < (height1/2 + height2/2):
+    t.goto(x2, y2 - 20)
+    t.write("Second rectangle OVERLAPS with the first rectangle", align="center")
+else:
+    t.goto(x2, y2 - 20)
+    t.write("Second rectangle is OUTSIDE the first rectangle", align="center")
+
+t.hideturtle()
+t.done()
+
+
+
+
 
 # Question 4
 # class book:
@@ -152,46 +202,41 @@ import turtle as t
 # print(f"Monthly Payment: {loan1.getMonthlyPayment()}")
 # print(f"Total Payment: {loan1.getTotalPayment()}")
 
-# Question 6
-# Implement BMI Class with following :
-# Private Data Initializer: def __init__(self, name, age, weight, height):
-#  Functions: getBMI(self):, getStatus: bmi = self.getBMI(), if bmi < 18.5: return "Underweight" etc., getName(self)
-# getAge(self), getWeight(self), self.__weight, getHeight(self), 
+# Question 7
+# class BMI:
+#     def __init__(self, name, age, weight, height):
+#         self.__name = name
+#         self.__age = age
+#         self.__weight = weight
+#         self.__height = height
 
-class BMI:
-    def __init__(self, name, age, weight, height):
-        self.__name = name
-        self.__age = age
-        self.__weight = weight
-        self.__height = height
+#     def getBMI(self):
+#         bmi = self.__weight / (self.__height ** 2)
+#         return bmi
 
-    def getBMI(self):
-        bmi = self.__weight / (self.__height ** 2)
-        return bmi
+#     def getStatus(self):
+#         bmi = self.getBMI()
+#         if bmi < 18.5:
+#             return "Underweight"
+#         else:
+#             return "Overweight"
 
-    def getStatus(self):
-        bmi = self.getBMI()
-        if bmi < 18.5:
-            return "Underweight"
-        else:
-            return "Overweight"
+#     def getName(self):
+#         return self.__name
 
-    def getName(self):
-        return self.__name
+#     def getAge(self):
+#         return self.__age
 
-    def getAge(self):
-        return self.__age
+#     def getWeight(self):
+#         return self.__weight
 
-    def getWeight(self):
-        return self.__weight
+#     def getHeight(self):
+#         return self.__height
 
-    def getHeight(self):
-        return self.__height
-
-bmi1 = BMI("Ali", 30, 70, 1.75)
-print(f"Name: {bmi1.getName()}")
-print(f"Age: {bmi1.getAge()}")
-print(f"Weight: {bmi1.getWeight()} kg")
-print(f"Height: {bmi1.getHeight()} m")
-print(f"BMI: {bmi1.getBMI()}")
-print(f"Status: {bmi1.getStatus()}")
+# bmi1 = BMI("Ali", 30, 70, 1.75)
+# print(f"Name: {bmi1.getName()}")
+# print(f"Age: {bmi1.getAge()}")
+# print(f"Weight: {bmi1.getWeight()} kg")
+# print(f"Height: {bmi1.getHeight()} m")
+# print(f"BMI: {bmi1.getBMI()}")
+# print(f"Status: {bmi1.getStatus()}")
