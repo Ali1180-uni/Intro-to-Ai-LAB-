@@ -87,3 +87,111 @@ import turtle as t
 
 # book1 = book("1291", "Python", 29, "Programming", "Python", 350)
 # book1.display_info()
+
+# Question 5
+# class Computer:
+#     def __init__(self, brand_name, speed, memory_size):
+#         self.brand_name = brand_name
+#         self.speed = speed
+#         self.memory_size = memory_size
+
+#     def show(self):
+#         print(f"Brand Name: {self.brand_name}")
+#         print(f"Speed: {self.speed} GHz")
+#         print(f"Memory Size: {self.memory_size} GB")
+
+# computer1 = Computer("Dell", 3.5, 16)
+# computer1.show()
+
+# Question 6
+# class Loan:
+#     def __init__(self, annualInterestRate=2.5, numberOfYears=1, loanAmount=1000, borrower=""):
+#         self.__annualInterestRate = annualInterestRate
+#         self.__numberOfYears = numberOfYears
+#         self.__loanAmount = loanAmount
+#         self.__borrower = borrower
+
+#     def getAnnualInterestRate(self):
+#         return self.__annualInterestRate
+
+#     def getNumberOfYears(self):
+#         return self.__numberOfYears
+
+#     def getLoanAmount(self):
+#         return self.__loanAmount
+
+#     def getBorrower(self):
+#         return self.__borrower
+
+#     def setAnnualInterestRate(self, annualInterestRate):
+#         self.__annualInterestRate = annualInterestRate
+
+#     def setNumberOfYears(self, numberOfYears):
+#         self.__numberOfYears = numberOfYears
+
+#     def setLoanAmount(self, loanAmount):
+#         self.__loanAmount = loanAmount
+
+#     def setBorrower(self, borrower):
+#         self.__borrower = borrower
+
+#     def getMonthlyPayment(self):
+#         monthlyInterestRate = self.__annualInterestRate / 1200
+#         monthlyPayment = self.__loanAmount * monthlyInterestRate / (1 - (1 + monthlyInterestRate) ** (self.__numberOfYears * 12))
+#         return monthlyPayment
+
+#     def getTotalPayment(self):
+#         totalPayment = self.getMonthlyPayment() * self.__numberOfYears * 12
+#         return totalPayment
+
+# loan1 = Loan(5, 15, 200000, "John Doe")
+# print(f"Borrower: {loan1.getBorrower()}")
+# print(f"Annual Interest Rate: {loan1.getAnnualInterestRate()}%")
+# print(f"Number of Years: {loan1.getNumberOfYears()}")
+# print(f"Loan Amount: {loan1.getLoanAmount()}")
+# print(f"Monthly Payment: {loan1.getMonthlyPayment()}")
+# print(f"Total Payment: {loan1.getTotalPayment()}")
+
+# Question 6
+# Implement BMI Class with following :
+# Private Data Initializer: def __init__(self, name, age, weight, height):
+#  Functions: getBMI(self):, getStatus: bmi = self.getBMI(), if bmi < 18.5: return "Underweight" etc., getName(self)
+# getAge(self), getWeight(self), self.__weight, getHeight(self), 
+
+class BMI:
+    def __init__(self, name, age, weight, height):
+        self.__name = name
+        self.__age = age
+        self.__weight = weight
+        self.__height = height
+
+    def getBMI(self):
+        bmi = self.__weight / (self.__height ** 2)
+        return bmi
+
+    def getStatus(self):
+        bmi = self.getBMI()
+        if bmi < 18.5:
+            return "Underweight"
+        else:
+            return "Overweight"
+
+    def getName(self):
+        return self.__name
+
+    def getAge(self):
+        return self.__age
+
+    def getWeight(self):
+        return self.__weight
+
+    def getHeight(self):
+        return self.__height
+
+bmi1 = BMI("Ali", 30, 70, 1.75)
+print(f"Name: {bmi1.getName()}")
+print(f"Age: {bmi1.getAge()}")
+print(f"Weight: {bmi1.getWeight()} kg")
+print(f"Height: {bmi1.getHeight()} m")
+print(f"BMI: {bmi1.getBMI()}")
+print(f"Status: {bmi1.getStatus()}")
