@@ -17,6 +17,7 @@ import turtle as t
 
 # rectangle(100, 200)
 
+
 # Question 2
 # x1, y1 = input("Enter the coordinates of the point (x1, y1): ").split()
 # x1, y1 = float(x1), float(y1)
@@ -65,3 +66,24 @@ import turtle as t
 # t.hideturtle()
 # t.done()
 
+
+# Question 4
+# class book:
+#     def __init__(self, ISBN, title, price, Main_Area, Sub_Area, no_of_pages):
+#         self.ISBN = ISBN
+#         self.title = title
+#         self.price = price
+#         self.Main_Area = Main_Area
+#         self.Sub_Area = Sub_Area
+#         self.no_of_pages = no_of_pages
+
+#     def display_info(self):
+#         print(f"Title: {self.title}")
+#         print(f"Price: ${self.price}")
+#         print(f"ISBN: {self.ISBN}")
+#         print(f"Main Area: {self.Main_Area}")
+#         print(f"Sub Area: {self.Sub_Area}")
+#         print(f"Number of Pages: {self.no_of_pages}")
+
+# book1 = book("1291", "Python", 29, "Programming", "Python", 350)
+# book1.display_info()
