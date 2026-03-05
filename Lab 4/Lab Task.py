@@ -62,96 +62,92 @@ edges = [
 
 # Question # 3
 # Graph dictionary
-romania = {
-    'Sibiu': ['Fagaras', 'Rimnicu Vilcea'],
-    'Fagaras': ['Bucharest'],
-    'Rimnicu Vilcea': ['Pitesti'],
-    'Pitesti': ['Bucharest']
-}
+# romania = {
+#     'Sibiu': ['Fagaras', 'Rimnicu Vilcea'],
+#     'Fagaras': ['Bucharest'],
+#     'Rimnicu Vilcea': ['Pitesti'],
+#     'Pitesti': ['Bucharest']
+# }
 
-def breadth_first(start, goal, neighbors):
+# def breadth_first(start, goal, neighbors):
 
-    frontier = [start]
-    previous = {start: None}
+#     frontier = [start]
+#     previous = {start: None}
 
-    while frontier:
+#     while frontier:
 
-        current = frontier.pop(0)
+#         current = frontier.pop(0)
 
-        if current == goal:
-            path = []
+#         if current == goal:
+#             path = []
 
-            while current is not None:
-                path.append(current)
-                current = previous[current]
+#             while current is not None:
+#                 path.append(current)
+#                 current = previous[current]
 
-            return path[::-1]
+#             return path[::-1]
 
-        for neighbor in neighbors.get(current, []):
-            if neighbor not in previous:
-                frontier.append(neighbor)
-                previous[neighbor] = current
+#         for neighbor in neighbors.get(current, []):
+#             if neighbor not in previous:
+#                 frontier.append(neighbor)
+#                 previous[neighbor] = current
 
-    return []
+#     return []
 
 
-start_state = "Sibiu"
-goal_state = "Bucharest"
+# start_state = "Sibiu"
+# goal_state = "Bucharest"
 
-result = breadth_first(start_state, goal_state, romania)
+# result = breadth_first(start_state, goal_state, romania)
 
-print("Path from Sibiu to Bucharest:")
-print(result)
+# print("Path from Sibiu to Bucharest:")
+# print(result)
 
 
 # Question # 4
+graph = {
+    'A': ['B','C'],
+    'B': ['D','E'],
+    'C': ['F'],
+    'D': [],
+    'E': ['F'],
+    'F': []
+}
 
-# import networkx as nx
-# import matplotlib.pyplot as plt
+# BFS
+def bfs(graph, start):
+    visited = []
+    queue = [start]
 
-# graph = {
-#     'A': ['B','C'],
-#     'B': ['D','E'],
-#     'C': ['F'],
-#     'D': [],
-#     'E': ['F'],
-#     'F': []
-# }
+    while queue:
+        node = queue.pop(0)
 
-# # BFS
-# def bfs(graph, start):
-#     visited = []
-#     queue = [start]
+        if node not in visited:
+            visited.append(node)
+            queue.extend(graph[node])
 
-#     while queue:
-#         node = queue.pop(0)
-
-#         if node not in visited:
-#             visited.append(node)
-#             queue.extend(graph[node])
-
-#     return visited
+    return visited
 
 
-# # DFS
-# def dfs(graph, start, visited=None):
-#     if visited is None:
-#         visited = []
+# DFS
+def dfs(graph, start, visited=None):
+    if visited is None:
+        visited = []
 
-#     visited.append(start)
+    visited.append(start)
 
-#     for neighbor in graph[start]:
-#         if neighbor not in visited:
-#             dfs(graph, neighbor, visited)
+    for neighbor in graph[start]:
+        if neighbor not in visited:
+            dfs(graph, neighbor, visited)
 
-#     return visited
-
-
-# print("BFS Traversal:", bfs(graph,'A'))
-# print("DFS Traversal:", dfs(graph,'A'))
+    return visited
 
 
-# # Visualization
-# G = nx.Graph(graph)
-# nx.draw(G, with_labels=True, node_color="lightgreen", node_size=2000)
-# plt.show()
+print("BFS Traversal:", bfs(graph,'A'))
+print("DFS Traversal:", dfs(graph,'A'))
+
+
+# Visualization
+G = nx.Graph(graph)
+nx.draw(G, with_labels=True, node_color="lightgreen", node_size=2000)
+plt.show()
