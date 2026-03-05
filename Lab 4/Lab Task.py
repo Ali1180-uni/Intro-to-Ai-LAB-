@@ -38,6 +38,7 @@ edges = [
     [10, 11]                           # Dallas - Houston
 ]
 
+# Question # 1
 # graph = Graph()
 # for vertex in vertices:
 #     graph.addVertex(vertex)
@@ -49,10 +50,108 @@ edges = [
 # graph.printEdges()
 
 
-G = nx.Graph()
-G.add_nodes_from(vertices)
-nx_edges = [(vertices[u], vertices[v]) for u, v in edges]
-G.add_edges_from(nx_edges)
+# Question # 2
+# G = nx.Graph()
+# G.add_nodes_from(vertices)
+# nx_edges = [(vertices[u], vertices[v]) for u, v in edges]
+# G.add_edges_from(nx_edges)
 
-nx.draw(G, with_labels=True, node_color='lightblue', node_size=1500, font_size=10)
-plt.show()
+# nx.draw(G, with_labels=True, node_color='lightblue', node_size=1500, font_size=10)
+# plt.show()
+
+
+# Question # 3
+# Graph dictionary
+romania = {
+    'Sibiu': ['Fagaras', 'Rimnicu Vilcea'],
+    'Fagaras': ['Bucharest'],
+    'Rimnicu Vilcea': ['Pitesti'],
+    'Pitesti': ['Bucharest']
+}
+
+def breadth_first(start, goal, neighbors):
+
+    frontier = [start]
+    previous = {start: None}
+
+    while frontier:
+
+        current = frontier.pop(0)
+
+        if current == goal:
+            path = []
+
+            while current is not None:
+                path.append(current)
+                current = previous[current]
+
+            return path[::-1]
+
+        for neighbor in neighbors.get(current, []):
+            if neighbor not in previous:
+                frontier.append(neighbor)
+                previous[neighbor] = current
+
+    return []
+
+
+start_state = "Sibiu"
+goal_state = "Bucharest"
+
+result = breadth_first(start_state, goal_state, romania)
+
+print("Path from Sibiu to Bucharest:")
+print(result)
+
+
+# Question # 4
+
+# import networkx as nx
+# import matplotlib.pyplot as plt
+
+# graph = {
+#     'A': ['B','C'],
+#     'B': ['D','E'],
+#     'C': ['F'],
+#     'D': [],
+#     'E': ['F'],
+#     'F': []
+# }
+
+# # BFS
+# def bfs(graph, start):
+#     visited = []
+#     queue = [start]
+
+#     while queue:
+#         node = queue.pop(0)
+
+#         if node not in visited:
+#             visited.append(node)
+#             queue.extend(graph[node])
+
+#     return visited
+
+
+# # DFS
+# def dfs(graph, start, visited=None):
+#     if visited is None:
+#         visited = []
+
+#     visited.append(start)
+
+#     for neighbor in graph[start]:
+#         if neighbor not in visited:
+#             dfs(graph, neighbor, visited)
+
+#     return visited
+
+
+# print("BFS Traversal:", bfs(graph,'A'))
+# print("DFS Traversal:", dfs(graph,'A'))
+
+
+# # Visualization
+# G = nx.Graph(graph)
+# nx.draw(G, with_labels=True, node_color="lightgreen", node_size=2000)
+# plt.show()
