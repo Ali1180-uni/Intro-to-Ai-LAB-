@@ -1,85 +1,78 @@
 # Tic Tac Toe Game
 class TicTacToe:
     def __init__(self):
-        self.board = [' ' for _ in range(9)]
-        self.current_winner = None
+        self.board = [" ", " ", " ", " ", " ", " ", " ", " ", " "]
 
-    def print_board(self):
-        for row in [self.board[i*3:(i+1)*3] for i in range(3)]:
-            print('| ' + ' | '.join(row) + ' |')
+    def display_board(self):
+        print(f"{self.board[0]} | {self.board[1]} | {self.board[2]}")
+        print("--+---+--")
+        print(f"{self.board[3]} | {self.board[4]} | {self.board[5]}")
+        print("--+---+--")
+        print(f"{self.board[6]} | {self.board[7]} | {self.board[8]}")
 
-    def available_moves(self):
-        return [i for i, spot in enumerate(self.board) if spot == ' ']
-
-    def make_move(self, square, letter):
-        if self.board[square] == ' ':
-            self.board[square] = letter
-            if self.winner(square, letter):
-                self.current_winner = letter
+    def player_move(self, position):
+        if self.board[position] == " ":
+            self.board[position] = "X"
             return True
         return False
-
-    def winner(self, square, letter):
-        row_ind = square // 3
-        row = self.board[row_ind*3:(row_ind+1)*3]
-        if all([s == letter for s in row]):
-            return True
-
-        col_ind = square % 3
-        column = [self.board[col_ind+i*3] for i in range(3)]
-        if all([s == letter for s in column]):
-            return True
-
-        if square % 2 == 0:
-            diagonal1 = [self.board[i] for i in [0, 4, 8]]
-            if all([s == letter for s in diagonal1]):
+    def ai_move(self):
+        for i in range(9):
+            if self.board[i] == " ":
+                self.board[i] = "O"
+                if self.check_winner("O"):
+                    return
+                self.board[i] = " "
+        for i in range(9):
+            if self.board[i] == " ":
+                self.board[i] = "X"
+                if self.check_winner("X"):
+                    self.board[i] = "O"
+                    return
+                self.board[i] = " "
+        for i in range(9):
+            if self.board[i] == " ":
+                self.board[i] = "O"
+                return
+    def check_winner(self, mark):
+        win_conditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ]
+        for condition in win_conditions:
+            if all(self.board[i] == mark for i in condition):
                 return True
-            diagonal2 = [self.board[i] for i in [2, 4, 6]]
-            if all([s == letter for s in diagonal2]):
-                return True
-
         return False
+    def is_draw(self):
+        return all(space != " " for space in self.board)
     
-def play(game, x_player, o_player):
-    game.print_board()
-    letter = 'X'
-    while game.available_moves():
-        if letter == 'O':
-            square = o_player.get_move(game)
-        else:
-            square = x_player.get_move(game)
-
-        if game.make_move(square, letter):
-            print(f"{letter} makes a move to square {square}")
-            game.print_board()
-
-            if game.current_winner:
-                print(f"{letter} wins!")
-                return letter
-
-            letter = 'O' if letter == 'X' else 'X'
-
-    print("It's a tie!")
-
-def get_move(self, game):
-    square = input("Input move (0-8): ")
-    valid_square = False
-    val = None
-    while not valid_square:
+def play_game():
+    game = TicTacToe()
+    while True:
+        game.display_board()
         try:
-            val = int(square)
-            if val not in game.available_moves():
-                raise ValueError
-            valid_square = True
+            position = int(input("Enter your move (0-8): "))
+            if position < 0 or position > 8:
+                print("Invalid position. Try again.")
+                continue
+            if not game.player_move(position):
+                print("Position already taken. Try again.")
+                continue
         except ValueError:
-            square = input("Invalid move. Input move (0-8): ")
-    return val
+            print("Invalid input. Enter a number between 0 and 8.")
+            continue
+        if game.check_winner("X"):
+            game.display_board()
+            print("Congratulations! You win!")
+            break
+        if game.is_draw():
+            game.display_board()
+            print("It's a draw!")
+            break
+        game.ai_move()
+        if game.check_winner("O"):
+            game.display_board()
+            print("AI wins! Better luck next time.")
+            break
 
-def human_move(self, game):
-    return self.get_move(game)
-
-def random_move(self, game):
-    square = r.choice(game.available_moves())
-    return square
-
-play(TicTacToe(), HumanPlayer('X'), RandomComputerPlayer('O'))
+play_game()
