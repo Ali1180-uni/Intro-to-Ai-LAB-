@@ -1,4 +1,3 @@
-import turtle as t
 # Question 1
 # x = input("Enter a Degree in Celsius: ")
 # fahrenheit = (9/5) * float(x) + 32
@@ -71,42 +70,148 @@ import turtle as t
 # book2.display()
 
 # Question 7
-class Loan:
-    def __init__(self):
-        self.__annualInterestRate = 2.5
-        self.__numberOfYears = 1
-        self.__loanAmount = 1000
-        self.__borrower = ''
+# class Loan:
+#     def __init__(self):
+#         self.__annualInterestRate = 2.5
+#         self.__numberOfYears = 1
+#         self.__loanAmount = 1000
+#         self.__borrower = ''
     
-    def setAnnualInterestRate(self, rate):
-        self.__annualInterestRate = rate
+#     def setAnnualInterestRate(self, rate):
+#         self.__annualInterestRate = rate
 
-    def setNumberOfYears(self, years):
-        self.__numberOfYears = years
+#     def setNumberOfYears(self, years):
+#         self.__numberOfYears = years
 
-    def setLoanAmount(self, amount):
-        self.__loanAmount = amount
+#     def setLoanAmount(self, amount):
+#         self.__loanAmount = amount
 
-    def setBorrower(self, borrower):
-        self.__borrower = borrower
+#     def setBorrower(self, borrower):
+#         self.__borrower = borrower
 
-    def getAnnualInterestRate(self):
-        return self.__annualInterestRate
+#     def getAnnualInterestRate(self):
+#         return self.__annualInterestRate
 
-    def getNumberOfYears(self):
-        return self.__numberOfYears
+#     def getNumberOfYears(self):
+#         return self.__numberOfYears
 
-    def getLoanAmount(self):
-        return self.__loanAmount
+#     def getLoanAmount(self):
+#         return self.__loanAmount
 
-    def getBorrower(self):
-        return self.__borrower
+#     def getBorrower(self):
+#         return self.__borrower
 
-    def getMonthlyPayment(self):
-        monthly_rate = self.__annualInterestRate / 1200
-        return monthly_rate
+#     def getMonthlyPayment(self):
+#         monthly_rate = self.__annualInterestRate / 1200
+#         return monthly_rate
 
-    def getTotalPayment(self):
-        return self.getMonthlyPayment() * self.__numberOfYears * 12
+#     def getTotalPayment(self):
+#         return self.getMonthlyPayment() * self.__numberOfYears * 12
 
-loan = Loan()
+# loan = Loan()
+# loan.setBorrower("John Doe")
+# loan.setLoanAmount(5000)
+# loan.setAnnualInterestRate(3.5)
+# loan.setNumberOfYears(5)
+# print(f"Borrower: {loan.getBorrower()}")
+# print(f"Loan Amount: {loan.getLoanAmount()}")
+# print(f"Annual Interest Rate: {loan.getAnnualInterestRate()}")
+# print(f"Number of Years: {loan.getNumberOfYears()}")
+# print(f"Monthly Payment: {loan.getMonthlyPayment()}")
+# print(f"Total Payment: {loan.getTotalPayment()}")
+
+# Question 8
+# class BMI:
+#     def __init__(self):
+#         self.__name = ''
+#         self.__age = 0
+#         self.__weight = 0.0
+#         self.__height = 0.0
+    
+#     def setName(self, name):
+#         self.__name = name
+
+#     def setAge(self, age):
+#         self.__age = age
+
+#     def setWeight(self, weight):
+#         self.__weight = weight
+
+#     def setHeight(self, height):
+#         self.__height = height
+
+#     def getName(self):
+#         return self.__name
+#     def getAge(self):
+#         return self.__age
+#     def getWeight(self):
+#         return self.__weight
+#     def getHeight(self):
+#         return self.__height
+#     def getBMI(self):
+#         return self.__weight / self.__height**2
+#     def getStatus(self):
+#         bmi = self.getBMI()
+#         if bmi < 18.5:
+#             return 'Underweight'
+#         elif 18.5 <= bmi < 25:
+#             return 'Normal'
+#         elif 25 <= bmi < 30:
+#             return 'Overweight'
+#         else:
+#             return 'Obese'
+
+#     def display(self):
+#         print(f"Name: {self.getName()}")
+#         print(f"Age: {self.getAge()}")
+#         print(f"Weight: {self.getWeight()} kg")
+#         print(f"Height: {self.getHeight()} m")
+#         print(f"BMI: {self.getBMI():.2f}")
+#         print(f"Status: {self.getStatus()}")
+
+# person = BMI()
+# person.setName("Alice")
+# person.setAge(30)
+# person.setWeight(70)
+# person.setHeight(1.75)
+# person.display()
+
+# Question 9
+
+# Create a class Complex with real and imaginary parts.
+# Overload the following operators:
+#  - __sub__ (subtraction)
+#  - __mul__ (multiplication)
+#  - __truediv__ (division)
+#  - __str__ (string representation)
+# Test each operator with two Complex objects and print results.
+
+class Complex:
+    def __init__(self, real=0.0, imag=0.0):
+        self.real = real
+        self.imag = imag
+
+    def __sub__(self, other):
+        return Complex(self.real - other.real, self.imag - other.imag)
+
+    def __mul__(self, other):
+        real_part = self.real * other.real - self.imag * other.imag
+        imag_part = self.real * other.imag + self.imag * other.real
+        return Complex(real_part, imag_part)
+
+    def __truediv__(self, other):
+        denominator = other.real**2 + other.imag**2
+        real_part = (self.real * other.real + self.imag * other.imag) / denominator
+        imag_part = (self.imag * other.real - self.real * other.imag) / denominator
+        return Complex(real_part, imag_part)
+
+    def __str__(self):
+        return f"{self.real} + {self.imag}i"
+
+c1 = Complex(4, 3)
+c2 = Complex(2, 1)
+print(f"c1 = {c1}")
+print(f"c2 = {c2}")
+print(f"c1 - c2 = {c1 - c2}")
+print(f"c1 * c2 = {c1 * c2}")
+print(f"c1 / c2 = {c1 / c2}")
