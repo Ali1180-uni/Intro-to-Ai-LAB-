@@ -46,3 +46,67 @@ import turtle as t
 # print(f"Point ({x}, {y}) is {'inside the rectangle' if rectangle else 'outside the rectangle'}")
 
 # Question 6
+# class Book:
+#     def __init__(self, ISBN, Title, Price, Main_Area, Sub_Area, Pages):
+#         self.ISBN = ISBN
+#         self.Title = Title
+#         self.Price = Price
+#         self.Main_Area = Main_Area
+#         self.Sub_Area = Sub_Area
+#         self.Pages = Pages
+
+#     def display(self):
+#         print(f"ISBN: {self.ISBN}")
+#         print(f"Title: {self.Title}")
+#         print(f"Price: ${self.Price:.2f}")
+#         print(f"Main Area: {self.Main_Area}")
+#         print(f"Sub Area: {self.Sub_Area}")
+#         print(f"Pages: {self.Pages}")
+
+# print("<-------------Book 1------------->")
+# book1 = Book("978-3-16-148410-0", "Python Programming", 29.99, "Computer Science", "Programming", 350)
+# book1.display()
+# print("<-------------Book 2------------->")
+# book2 = Book("978-0-13-419044-0", "Data Structures and Algorithms", 39.99, "Computer Science", "Algorithms", 500)
+# book2.display()
+
+# Question 7
+class Loan:
+    def __init__(self):
+        self.__annualInterestRate = 2.5
+        self.__numberOfYears = 1
+        self.__loanAmount = 1000
+        self.__borrower = ''
+    
+    def setAnnualInterestRate(self, rate):
+        self.__annualInterestRate = rate
+
+    def setNumberOfYears(self, years):
+        self.__numberOfYears = years
+
+    def setLoanAmount(self, amount):
+        self.__loanAmount = amount
+
+    def setBorrower(self, borrower):
+        self.__borrower = borrower
+
+    def getAnnualInterestRate(self):
+        return self.__annualInterestRate
+
+    def getNumberOfYears(self):
+        return self.__numberOfYears
+
+    def getLoanAmount(self):
+        return self.__loanAmount
+
+    def getBorrower(self):
+        return self.__borrower
+
+    def getMonthlyPayment(self):
+        monthly_rate = self.__annualInterestRate / 1200
+        return monthly_rate
+
+    def getTotalPayment(self):
+        return self.getMonthlyPayment() * self.__numberOfYears * 12
+
+loan = Loan()
