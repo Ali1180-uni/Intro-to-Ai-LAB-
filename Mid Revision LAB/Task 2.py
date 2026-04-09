@@ -1,10 +1,3 @@
-# Task Create a Graph class using Python dictionaries. Add at least 6 cities as vertices
-# and connect them with edges. Implement addVertex(), addEdge(), and
-# printEdges() methods. Finally, visualize the graph using networkx and matplotlib.
-# Objective Test students' ability to implement a graph data structure from scratch and
-# visualize it.
-# Topics Graph class · Adjacency list · networkx · matplotlib
-
 # Question 1:
 # import networkx as nx
 # import matplotlib.pyplot as plt
@@ -26,13 +19,11 @@
 #         for vertex, edges in self.graph.items():
 #             print(f"{vertex}: {', '.join(edges)}")
 
-# # Create a graph instance
 # g = Graph()
-# # Add vertices (cities)
+
 # cities = ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia"]
 # for city in cities:
 #     g.addVertex(city)
-# # Add edges (connections between cities)
 # g.addEdge("New York", "Los Angeles")
 # g.addEdge("New York", "Chicago")
 # g.addEdge("Los Angeles", "Houston")
@@ -41,22 +32,11 @@
 # g.addEdge("Phoenix", "Philadelphia")
 # # Print edges
 # g.printEdges()
-# # Visualize the graph
 # G = nx.Graph(g.graph)
 # pos = nx.spring_layout(G)
 # nx.draw(G, pos, with_labels=True, node_color='lightblue', edge_color='gray', node_size=2000)
 # plt.title("Graph of Cities")
 # plt.show()
-
-
-#  Implement BFS and DFS on the Romania map and
-# compare their paths Lab 5 Graphs
-# Task Using the Romania dictionary graph from the lab, implement both Breadth-First
-# Search (BFS) and Depth-First Search (DFS). Run both from Sibiu to Bucharest.
-# Print the path found by each algorithm and explain the difference in results.
-# Objective Verify students understand how BFS and DFS traverse graphs differently and can
-# interpret the output.
-# Topics BFS · DFS · Dictionary graph · Path finding
 
 # Question 2:
 # Romania graph as an adjacency list
@@ -107,20 +87,11 @@
 #     path.pop()
 #     return None
 
-# # Run BFS and DFS from Sibiu to Bucharest
 # bfs_path = bfs(romania_graph, 'Sibiu', 'Bucharest')
 # dfs_path = dfs(romania_graph, 'Sibiu', 'Bucharest')
 # print("BFS Path from Sibiu to Bucharest:", bfs_path)
 # print("DFS Path from Sibiu to Bucharest:", dfs_path)
 
-#  Modify the NIM game so the AI always starts first and
-# plays optimally Lab 6 Minimax
-# Task Adapt the NIM game so the AI makes the first move. Use the minimax() function
-# to ensure optimal AI strategy. Test with a pile of 15 counters. Print each game
-# state and declare the winner at the end. Add a replay option after the game ends.
-# Objective Ensure students understand the minimax algorithm and can restructure game
-# logic independently.
-# Topics Minimax · NIM game · Game tree · AI strategy
 
 # Question 3:
 # import random
@@ -177,16 +148,105 @@
 # play_nim()
 
 
-# Solve a given 8-puzzle using A* and measure the
-# Manhattan heuristic's impact
-# Lab 7 A*
-# Search
-# Task Given the starting state [2, 8, 1, 0, 4, 3, 7, 6, 5], solve the 8-puzzle using astar().
-# Print the sequence of moves, total nodes explored, and time taken. Then solve
-# the same puzzle using BFS and compare: which explored more nodes? Why does
-# the Manhattan heuristic help A*?
-# Objective Students demonstrate they can run and compare A* vs BFS, and explain the role
-# of the heuristic.
-# Topics A* search · Manhattan distance · Heuristic · BFS vs A*
-
 # Question 4:
+import time
+from queue import PriorityQueue
+
+def manhattan_distance(state, goal):
+    distance = 0
+    for i in range(1, 9):
+        current_index = state.index(i)
+        goal_index = goal.index(i)
+        distance += abs(current_index // 3 - goal_index // 3) + abs(current_index % 3 - goal_index % 3)
+    return distance
+
+def get_neighbors(state):
+    neighbors = []
+    zero_index = state.index(0)
+    moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    for move in moves:
+        new_zero_index = zero_index + move[0] * 3 + move[1]
+        if 0 <= new_zero_index < 9 and (zero_index // 3 == new_zero_index // 3 or zero_index % 3 == new_zero_index % 3):
+            new_state = state[:]
+            new_state[zero_index], new_state[new_zero_index] = new_state[new_zero_index], new_state[zero_index]
+            neighbors.append(new_state)
+    return neighbors
+
+def a_star(start, goal):
+    open_set = PriorityQueue()
+    counter = 0
+    open_set.put((manhattan_distance(start, goal), counter, start))
+    came_from = {}
+    g_score = {tuple(start): 0}
+    nodes_explored = 0
+
+    while not open_set.empty():
+        current = open_set.get()[2]
+        current_key = tuple(current)
+        nodes_explored += 1
+
+        if current == goal:
+            path = []
+            while current_key in came_from:
+                path.append(list(current_key))
+                current_key = came_from[current_key]
+            path.append(start)
+            return path[::-1], nodes_explored
+
+        for neighbor in get_neighbors(current):
+            neighbor_key = tuple(neighbor)
+            tentative_g_score = g_score[current_key] + 1
+            if neighbor_key not in g_score or tentative_g_score < g_score[neighbor_key]:
+                came_from[neighbor_key] = current_key
+                g_score[neighbor_key] = tentative_g_score
+                f_score = tentative_g_score + manhattan_distance(neighbor, goal)
+                counter += 1
+                open_set.put((f_score, counter, neighbor))
+
+    return None, nodes_explored
+
+def bfs(start, goal):
+    queue = [start]
+    visited = {tuple(start)}
+    came_from = {}
+    nodes_explored = 0
+
+    while queue:
+        current = queue.pop(0)
+        current_key = tuple(current)
+        nodes_explored += 1
+
+        if current == goal:
+            path = []
+            while current_key in came_from:
+                path.append(list(current_key))
+                current_key = came_from[current_key]
+            path.append(start)
+            return path[::-1], nodes_explored
+
+        for neighbor in get_neighbors(current):
+            neighbor_key = tuple(neighbor)
+            if neighbor_key not in visited:
+                came_from[neighbor_key] = current_key
+                visited.add(neighbor_key)
+                queue.append(neighbor)
+
+    return None, nodes_explored
+
+
+start_state = [2, 8, 1, 0, 4, 3, 7, 6, 5]
+goal_state = [1, 2, 3, 4, 5, 6, 7, 8, 0]
+
+start_time = time.time()
+a_star_path, a_star_nodes = a_star(start_state, goal_state)
+a_star_time = time.time() - start_time
+print("A* Path:", a_star_path)
+print("A* Nodes Explored:", a_star_nodes)
+print("A* Time Taken:", a_star_time, "seconds")
+
+start_time = time.time()
+bfs_path, bfs_nodes = bfs(start_state, goal_state)
+bfs_time = time.time() - start_time
+print("BFS Path:", bfs_path)
+print("BFS Nodes Explored:", bfs_nodes)
+print("BFS Time Taken:", bfs_time, "seconds")
