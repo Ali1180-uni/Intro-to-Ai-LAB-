@@ -68,7 +68,7 @@ amount = float(input("Enter investment amount: "))
 annual_rate = float(input("Enter annual interest rate: "))
 years = int(input("Enter number of years: "))
 monthly_rate = annual_rate / 1200
-months = years * 12        
+months = years * 12
 future_value = amount * ((1 + monthly_rate) * months)
 print(f"Accumulated value is {future_value}")
 

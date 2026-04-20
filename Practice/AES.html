@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AES 128 - Round 1 Visualizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #030712; color: #e5e7eb; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Premium Glow Effects */
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(56, 189, 248, 0.15);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+        .matrix-cell {
+            transition: all 0.3s ease;
+        }
+        .matrix-cell:hover {
+            background-color: rgba(56, 189, 248, 0.2);
+            transform: scale(1.05);
+            border-color: rgba(56, 189, 248, 0.8);
+        }
+
+        /* Animations */
+        .fade-in-up { animation: fadeInUp 0.5s ease-out forwards; opacity: 0; transform: translateY(20px); }
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Staggered animation delays for steps */
+        .step-delay-1 { animation-delay: 0.1s; }
+        .step-delay-2 { animation-delay: 0.3s; }
+        .step-delay-3 { animation-delay: 0.5s; }
+        .step-delay-4 { animation-delay: 0.7s; }
+        .step-delay-5 { animation-delay: 0.9s; }
+    </style>
+</head>
+<body class="min-h-screen p-4 lg:p-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-[#030712] to-black">
+
+    <div class="max-w-6xl mx-auto space-y-8">
+        
+        <!-- Header -->
+        <header class="text-center space-y-2">
+            <div class="inline-flex items-center justify-center p-3 bg-sky-900/30 rounded-2xl border border-sky-500/30 mb-4 shadow-[0_0_20px_rgba(14,165,233,0.2)]">
+                <svg class="w-8 h-8 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+            </div>
+            <h1 class="text-3xl lg:text-4xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-emerald-400">
+                AES-128 Engine Visualizer
+            </h1>
+            <p class="text-slate-400">Step-by-step cryptographic execution of Round 1</p>
+        </header>
+
+        <!-- Input Section -->
+        <div class="glass-panel rounded-3xl p-6 lg:p-8 relative overflow-hidden">
+            <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-sky-500/10 rounded-full blur-3xl"></div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                    <label class="block text-sm font-semibold text-sky-300 mb-2 uppercase tracking-widest">Plaintext (16 Bytes / 32 Hex Chars)</label>
+                    <input type="text" id="plaintext" class="w-full bg-black/50 border border-slate-700 rounded-xl px-4 py-3 text-white mono focus:ring-2 focus:ring-sky-500 outline-none uppercase transition-all" value="54776F204F6E65204E696E652054776F">
+                    <p class="text-xs text-slate-500 mt-2">Example from PDF: "Two One Nine Two"</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-emerald-300 mb-2 uppercase tracking-widest">Master Key (16 Bytes / 32 Hex Chars)</label>
+                    <input type="text" id="masterkey" class="w-full bg-black/50 border border-slate-700 rounded-xl px-4 py-3 text-white mono focus:ring-2 focus:ring-emerald-500 outline-none uppercase transition-all" value="5468617473206D79204B756E67204675">
+                    <p class="text-xs text-slate-500 mt-2">Example from PDF: "Thats my Kung Fu"</p>
+                </div>
+            </div>
+            
+            <div class="mt-8 text-center">
+                <button onclick="executeAES()" class="bg-gradient-to-r from-sky-600 to-emerald-600 hover:from-sky-500 hover:to-emerald-500 text-white font-bold py-3 px-8 rounded-xl shadow-[0_0_20px_rgba(14,165,233,0.3)] transition-all active:scale-95 uppercase tracking-widest text-sm">
+                    Initialize & Execute Round 1
+                </button>
+                <div id="error-msg" class="text-red-400 text-sm mt-3 hidden font-semibold"></div>
+            </div>
+        </div>
+
+        <!-- Visualization Canvas (Hidden until execution) -->
+        <div id="visualization" class="hidden space-y-6 pb-20">
+            <!-- Dynamic content injected here -->
+        </div>
+
+    </div>
+
+    <script>
+        /**
+         * PRO SOFTWARE ENGINEER: AES CORE ENGINE
+         * Implementing pure Javascript cryptographic primitives for AES-128.
+         */
+
+        // 1. Core Constants
+        const SBOX = [
+            0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
+            0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0,
+            0xb7, 0xfd, 0x93, 0x26, 0x36, 0x3f, 0xf7, 0xcc, 0x34, 0xa5, 0xe5, 0xf1, 0x71, 0xd8, 0x31, 0x15,
+            0x04, 0xc7, 0x23, 0xc3, 0x18, 0x96, 0x05, 0x9a, 0x07, 0x12, 0x80, 0xe2, 0xeb, 0x27, 0xb2, 0x75,
+            0x09, 0x83, 0x2c, 0x1a, 0x1b, 0x6e, 0x5a, 0xa0, 0x52, 0x3b, 0xd6, 0xb3, 0x29, 0xe3, 0x2f, 0x84,
+            0x53, 0xd1, 0x00, 0xed, 0x20, 0xfc, 0xb1, 0x5b, 0x6a, 0xcb, 0xbe, 0x39, 0x4a, 0x4c, 0x58, 0xcf,
+            0xd0, 0xef, 0xaa, 0xfb, 0x43, 0x4d, 0x33, 0x85, 0x45, 0xf9, 0x02, 0x7f, 0x50, 0x3c, 0x9f, 0xa8,
+            0x51, 0xa3, 0x40, 0x8f, 0x92, 0x9d, 0x38, 0xf5, 0xbc, 0xb6, 0xda, 0x21, 0x10, 0xff, 0xf3, 0xd2,
+            0xcd, 0x0c, 0x13, 0xec, 0x5f, 0x97, 0x44, 0x17, 0xc4, 0xa7, 0x7e, 0x3d, 0x64, 0x5d, 0x19, 0x73,
+            0x60, 0x81, 0x4f, 0xdc, 0x22, 0x2a, 0x90, 0x88, 0x46, 0xee, 0xb8, 0x14, 0xde, 0x5e, 0x0b, 0xdb,
+            0xe0, 0x32, 0x3a, 0x0a, 0x49, 0x06, 0x24, 0x5c, 0xc2, 0xd3, 0xac, 0x62, 0x91, 0x95, 0xe4, 0x79,
+            0xe7, 0xc8, 0x37, 0x6d, 0x8d, 0xd5, 0x4e, 0xa9, 0x6c, 0x56, 0xf4, 0xea, 0x65, 0x7a, 0xae, 0x08,
+            0xba, 0x78, 0x25, 0x2e, 0x1c, 0xa6, 0xb4, 0xc6, 0xe8, 0xdd, 0x74, 0x1f, 0x4b, 0xbd, 0x8b, 0x8a,
+            0x70, 0x3e, 0xb5, 0x66, 0x48, 0x03, 0xf6, 0x0e, 0x61, 0x35, 0x57, 0xb9, 0x86, 0xc1, 0x1d, 0x9e,
+            0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e, 0x94, 0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf,
+            0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16
+        ];
+        const RCON = [0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36];
+
+        // 2. Math Helpers (Galois Field GF(2^8))
+        function xtime(x) { return ((x << 1) ^ (((x >> 7) & 1) * 0x11b)) & 0xff; }
+        function multiply(x, y) {
+            let res = 0;
+            let temp = x;
+            for (let i = 0; i < 8; i++) {
+                if (y & 1) res ^= temp;
+                temp = xtime(temp);
+                y >>= 1;
+            }
+            return res;
+        }
+
+        // 3. Matrix Setup (Column-major Order)
+        function parseToMatrix(hexStr) {
+            let mat = [[], [], [], []];
+            for (let i = 0; i < 16; i++) {
+                let byte = parseInt(hexStr.substr(i * 2, 2), 16);
+                mat[i % 4][Math.floor(i / 4)] = byte; // Column-major insertion
+            }
+            return mat;
+        }
+
+        function cloneMatrix(mat) {
+            return mat.map(row => [...row]);
+        }
+
+        // 4. Cryptographic Step Functions
+        function addRoundKey(state, roundKey) {
+            let next = cloneMatrix(state);
+            for (let r = 0; r < 4; r++) {
+                for (let c = 0; c < 4; c++) {
+                    next[r][c] ^= roundKey[r][c];
+                }
+            }
+            return next;
+        }
+
+        function subBytes(state) {
+            let next = cloneMatrix(state);
+            for(let r=0; r<4; r++) {
+                for(let c=0; c<4; c++) {
+                    next[r][c] = SBOX[next[r][c]];
+                }
+            }
+            return next;
+        }
+
+        function shiftRows(state) {
+            let next = cloneMatrix(state);
+            next[1] = [state[1][1], state[1][2], state[1][3], state[1][0]];
+            next[2] = [state[2][2], state[2][3], state[2][0], state[2][1]];
+            next[3] = [state[3][3], state[3][0], state[3][1], state[3][2]];
+            return next;
+        }
+
+        function mixColumns(state) {
+            let next = [[0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0]];
+            for (let c = 0; c < 4; c++) {
+                let a = [state[0][c], state[1][c], state[2][c], state[3][c]];
+                next[0][c] = multiply(0x02, a[0]) ^ multiply(0x03, a[1]) ^ a[2] ^ a[3];
+                next[1][c] = a[0] ^ multiply(0x02, a[1]) ^ multiply(0x03, a[2]) ^ a[3];
+                next[2][c] = a[0] ^ a[1] ^ multiply(0x02, a[2]) ^ multiply(0x03, a[3]);
+                next[3][c] = multiply(0x03, a[0]) ^ a[1] ^ a[2] ^ multiply(0x02, a[3]);
+            }
+            return next;
+        }
+
+        // Generate *only* Round 0 and Round 1 Keys based on AES spec
+        function generateKeys(masterKeyHex) {
+            let w = new Uint8Array(44 * 4); // 44 words for AES-128 (11 rounds total, we just need first 2 rounds = 8 words)
+            let master = parseToMatrix(masterKeyHex); // Col-major
+            
+            // Round 0 Key (Words 0-3)
+            let round0 = cloneMatrix(master);
+            
+            // Round 1 Key (Words 4-7)
+            let r1 = [[0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0]];
+            
+            // Key Expansion Core Logic for Word 4
+            let temp = [round0[0][3], round0[1][3], round0[2][3], round0[3][3]];
+            // RotWord
+            temp = [temp[1], temp[2], temp[3], temp[0]];
+            // SubWord + RCON
+            temp[0] = SBOX[temp[0]] ^ RCON[1];
+            temp[1] = SBOX[temp[1]];
+            temp[2] = SBOX[temp[2]];
+            temp[3] = SBOX[temp[3]];
+
+            // Build Col 0
+            for(let r=0; r<4; r++) r1[r][0] = round0[r][0] ^ temp[r];
+            // Build Col 1
+            for(let r=0; r<4; r++) r1[r][1] = round0[r][1] ^ r1[r][0];
+            // Build Col 2
+            for(let r=0; r<4; r++) r1[r][2] = round0[r][2] ^ r1[r][1];
+            // Build Col 3
+            for(let r=0; r<4; r++) r1[r][3] = round0[r][3] ^ r1[r][2];
+
+            return { round0, round1: r1 };
+        }
+
+        // 5. UI Rendering System
+        function hex(num) {
+            return num.toString(16).padStart(2, '0').toUpperCase();
+        }
+
+        function renderMatrix(title, mat, accentColor) {
+            let html = `
+            <div class="glass-panel p-4 rounded-2xl flex-1 min-w-[200px]">
+                <h3 class="text-xs font-bold uppercase tracking-widest text-${accentColor}-400 mb-4 text-center border-b border-slate-700 pb-2">${title}</h3>
+                <div class="grid grid-cols-4 gap-1">`;
+            
+            for (let r = 0; r < 4; r++) {
+                for (let c = 0; c < 4; c++) {
+                    html += `<div class="matrix-cell aspect-square flex items-center justify-center bg-slate-800/50 rounded-lg border border-slate-700/50 text-sm mono font-bold text-slate-200 shadow-inner">${hex(mat[r][c])}</div>`;
+                }
+            }
+            html += `</div></div>`;
+            return html;
+        }
+
+        function createStepRow(stepNum, title, desc, matricesHtml, delayClass) {
+            return `
+            <div class="fade-in-up ${delayClass} flex flex-col md:flex-row gap-6 items-center">
+                <div class="w-full md:w-1/3 text-left">
+                    <div class="inline-block bg-sky-900/50 text-sky-400 font-mono text-xs px-2 py-1 rounded mb-2 border border-sky-500/30">Step ${stepNum}</div>
+                    <h2 class="text-xl font-bold text-white mb-2">${title}</h2>
+                    <p class="text-sm text-slate-400 leading-relaxed">${desc}</p>
+                </div>
+                <div class="w-full md:w-2/3 flex gap-4 overflow-x-auto pb-2 items-center justify-center">
+                    ${matricesHtml}
+                </div>
+            </div>`;
+        }
+
+        // Main Execution Flow
+        function executeAES() {
+            const ptInput = document.getElementById('plaintext').value.replace(/\s+/g, '');
+            const mkInput = document.getElementById('masterkey').value.replace(/\s+/g, '');
+            const errorElement = document.getElementById('error-msg');
+            const visDiv = document.getElementById('visualization');
+            
+            errorElement.classList.add('hidden');
+            visDiv.innerHTML = '';
+
+            // Validation
+            const hexRegex = /^[0-9A-Fa-f]{32}$/;
+            if (!hexRegex.test(ptInput) || !hexRegex.test(mkInput)) {
+                errorElement.innerText = "Error: Both inputs must be exactly 32 hexadecimal characters (16 bytes).";
+                errorElement.classList.remove('hidden');
+                return;
+            }
+
+            // Cryptographic Math
+            const keys = generateKeys(mkInput);
+            const state0 = parseToMatrix(ptInput); // Plaintext
+            
+            // Initial AddRoundKey
+            const state1 = addRoundKey(state0, keys.round0);
+            
+            // Round 1
+            const state2 = subBytes(state1);
+            const state3 = shiftRows(state2);
+            const state4 = mixColumns(state3);
+            const state5 = addRoundKey(state4, keys.round1);
+
+            // Render Visualization
+            let htmlBuffer = '';
+
+            // Step 0
+            htmlBuffer += createStepRow(
+                "0", "Initial AddRoundKey", "The 16-byte plaintext is formatted into a 4x4 matrix and XORed against the Master Key.",
+                renderMatrix("Plaintext Matrix", state0, "sky") +
+                `<div class="text-2xl text-slate-600 font-bold">⊕</div>` +
+                renderMatrix("Master Key Matrix", keys.round0, "emerald") +
+                `<div class="text-2xl text-slate-600 font-bold">=</div>` +
+                renderMatrix("State Array", state1, "purple"),
+                "step-delay-1"
+            );
+
+            // Step 1
+            htmlBuffer += `<div class="w-full h-px bg-slate-800 fade-in-up step-delay-2 my-8"></div>`;
+            htmlBuffer += createStepRow(
+                "1", "Round 1: SubBytes", "Non-linear substitution. Every byte in the state array is replaced with a corresponding byte from the standard AES S-Box table.",
+                renderMatrix("Input State", state1, "slate") +
+                `<div class="text-2xl text-slate-600 font-bold">→</div>` +
+                renderMatrix("After SubBytes", state2, "amber"),
+                "step-delay-2"
+            );
+
+            // Step 2
+            htmlBuffer += `<div class="w-full h-px bg-slate-800 fade-in-up step-delay-3 my-8"></div>`;
+            htmlBuffer += createStepRow(
+                "2", "Round 1: ShiftRows", "Rows are cyclically shifted to the left. Row 0 shifts by 0, Row 1 by 1, Row 2 by 2, and Row 3 by 3. This provides diffusion.",
+                renderMatrix("Before Shift", state2, "slate") +
+                `<div class="text-2xl text-slate-600 font-bold">→</div>` +
+                renderMatrix("After ShiftRows", state3, "rose"),
+                "step-delay-3"
+            );
+
+            // Step 3
+            htmlBuffer += `<div class="w-full h-px bg-slate-800 fade-in-up step-delay-4 my-8"></div>`;
+            htmlBuffer += createStepRow(
+                "3", "Round 1: MixColumns", "A mathematical transformation operating on each column. Each byte is replaced by a value mathematically derived from all four bytes in the column using Galois Field multiplication.",
+                renderMatrix("Before Mix", state3, "slate") +
+                `<div class="text-2xl text-slate-600 font-bold">→</div>` +
+                renderMatrix("After MixColumns", state4, "indigo"),
+                "step-delay-4"
+            );
+
+            // Step 4
+            htmlBuffer += `<div class="w-full h-px bg-slate-800 fade-in-up step-delay-5 my-8"></div>`;
+            htmlBuffer += createStepRow(
+                "4", "Round 1: AddRoundKey", "The state is XORed with the Round 1 Key (which was expanded from the master key using RotWord, SubWord, and Rcon).",
+                renderMatrix("State", state4, "slate") +
+                `<div class="text-2xl text-slate-600 font-bold">⊕</div>` +
+                renderMatrix("Round 1 Key", keys.round1, "emerald") +
+                `<div class="text-2xl text-slate-600 font-bold">=</div>` +
+                renderMatrix("End of Round 1", state5, "sky"),
+                "step-delay-5"
+            );
+
+            visDiv.innerHTML = htmlBuffer;
+            visDiv.classList.remove('hidden');
+            
+            // Scroll to visualize
+            setTimeout(() => {
+                document.getElementById('visualization').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+    </script>
+</body>
+</html>
