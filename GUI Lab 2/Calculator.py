@@ -26,15 +26,21 @@ class MenuDemo:
         Label(self.frame1, text="Result").pack(side=LEFT)
         self.v3 = StringVar()
         Entry(self.frame1, width= 5, textvariable=self.v3, justify=RIGHT).pack(side=LEFT)
+        self.frame2 = Frame(self.window)
+        self.frame2.grid(row=2, column=1, pady=10, sticky=E)
+        Button(self.frame2, text="Add", command=self.add).pack(side=LEFT)
+        Button(self.frame2, text="Subtract", command=self.subtract).pack(side=LEFT)
+        Button(self.frame2, text="Multiply", command=self.multiply).pack(side=LEFT)
+        Button(self.frame2, text="Divide", command=self.divide).pack(side=LEFT)
         self.window.mainloop()
 
     def add(self):
-        print("Add")
+        self.v3.set(eval(self.v1.get()) + eval(self.v2.get()))
     def subtract(self):
-        print("Subtract")
+        self.v3.set(eval(self.v1.get()) - eval(self.v2.get()))
     def multiply(self):
-        print("Multiply")
+        self.v3.set(eval(self.v1.get()) * eval(self.v2.get()))
     def divide(self):
-        print("Divide")
+        self.v3.set(eval(self.v1.get()) / eval(self.v2.get()))
 
 MenuDemo()
