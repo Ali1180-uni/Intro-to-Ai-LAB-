@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Trip Plan</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin:24px; background:#f6f8fa }
+    .wrap { display:flex; gap:12px; max-width:1200px }
+    .panel { background:white; padding:12px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.06) }
+    .left { flex:0 0 360px }
+    .right { flex:1 }
+    h2 { margin-top:0 }
+    ol { padding-left:20px }
+    .back { display:inline-block; margin-bottom:8px; color:#2d87f0 }
+  </style>
+</head>
+<body>
+  <a class="back" href="{{ url_for('index') }}">← Back to planner</a>
+  <div class="wrap">
+    <div class="panel left">
+      <h2>Itinerary</h2>
+      <ol>
+        {% for c in route %}
+          <li><strong>{{ c.get('name') }}</strong><br>
+            {{ c.get('capital','N/A') }} · {{ c.get('region','N/A') }} · Population: {{ c.get('population', 'N/A') }}
+          </li>
+        {% endfor %}
+      </ol>
+    </div>
+    <div class="panel right">
+      <h2>Map</h2>
+      <div>
+        {{ map_html | safe }}
+      </div>
+    </div>
+  </div>
+</body>
+</html>
