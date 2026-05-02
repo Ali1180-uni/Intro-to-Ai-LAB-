@@ -1,7 +1,6 @@
-from flask import Flask, render_template, request
+from flask import Flask, jsonify, request
 from data_store import fetch_all_countries, search_by_name
-from algorithms import smart_trip_recommend, minimax_score
-from map_view import generate_trip_map_html
+from algorithms import minimax_recommend, minimax_score, plan_trip
 
 app = Flask(__name__)
 
@@ -13,72 +12,67 @@ ALL_COUNTRIES = fetch_all_countries()
 # app delegates scoring and recommendation to algorithms.smart_trip_recommend
 
 
-@app.route("/")
-def index():
-    countries = sorted(ALL_COUNTRIES.values(), key=lambda c: c.get("name", ""))
-    return render_template("index.html", countries=countries)
-
-
-@app.route("/plan", methods=["POST"])
-def plan():
-    start = request.form.get("start")
-    names_input = request.form.get("names")
-    try:
-        count = int(request.form.get("count") or 1)
-    except ValueError:
-        count = 1
-
-    all_data = ALL_COUNTRIES
-    def resolve_code(value):
-        if not value:
-            return None
-        v = value.strip()
-        if len(v) == 3 and v.upper() in all_data:
-            return v.upper()
-        res = search_by_name(v)
-        if res:
-            return res.get("alpha3Code")
+def _resolve_code(value):
+    if not value:
         return None
+    v = value.strip()
+    if len(v) == 3 and v.upper() in ALL_COUNTRIES:
+        return v.upper()
+    res = search_by_name(v)
+    if res:
+        return res.get("alpha3Code")
+    return None
 
-    route = []
-    selected_codes = []
 
-    if names_input:
-        parts = [p.strip() for p in names_input.split(",") if p.strip()]
-        for p in parts:
-            code = resolve_code(p)
-            if code:
-                selected_codes.append(code)
-    else:
-        code = resolve_code(start)
+@app.route("/api/countries")
+def api_countries():
+    countries = sorted(ALL_COUNTRIES.values(), key=lambda c: c.get("name", ""))
+    return jsonify([
+        {"name": c.get("name"), "alpha3Code": c.get("alpha3Code")}
+        for c in countries
+    ])
+
+
+@app.route("/api/country/<query>")
+def api_country(query):
+    code = _resolve_code(query)
+    if not code:
+        return jsonify({"error": "Country not found"}), 404
+    return jsonify(ALL_COUNTRIES.get(code))
+
+
+@app.route("/api/recommend/<code>")
+def api_recommend(code):
+    code = (code or "").upper()
+    if code not in ALL_COUNTRIES:
+        return jsonify({"error": "Country not found"}), 404
+    recs = minimax_recommend(code, all_data=ALL_COUNTRIES)
+    return jsonify(recs)
+
+
+@app.route("/api/plan")
+def api_plan():
+    countries_input = request.args.get("countries") or ""
+    try:
+        count = int(request.args.get("count") or 3)
+    except ValueError:
+        count = 3
+
+    raw = [p.strip() for p in countries_input.split(",") if p.strip()]
+    resolved = []
+    for p in raw:
+        code = _resolve_code(p)
         if code:
-            selected_codes.append(code)
+            resolved.append(code)
 
-    if not selected_codes:
-        countries = sorted(all_data.values(), key=lambda c: c.get("name", ""))
-        return render_template("index.html", countries=countries, error="Start country not found")
+    if not resolved:
+        return jsonify({"error": "No valid countries provided"}), 404
 
-    # add user-provided countries first
-    for code in selected_codes:
-        c = all_data.get(code)
-        if not c:
-            continue
-        ccopy = dict(c)
-        ccopy["score"] = minimax_score(ccopy, all_data)
-        route.append(ccopy)
-
-    # auto-complete remaining route based on minimax scoring
-    remaining = max(count - len(route), 0)
-    if remaining > 0:
-        last_code = route[-1].get("alpha3Code")
-        extension = smart_trip_recommend(last_code, remaining, all_data)
-        if extension:
-            # extension includes the start country; skip it
-            route.extend(extension[1:])
-
-    # generate folium map html via map_view helper
-    map_html = generate_trip_map_html(route)
-    return render_template("results.html", route=route, map_html=map_html)
+    route = plan_trip(resolved, count, ALL_COUNTRIES)
+    for c in route:
+        if "score" not in c:
+            c["score"] = minimax_score(c)
+    return jsonify(route)
 
 
 if __name__ == "__main__":

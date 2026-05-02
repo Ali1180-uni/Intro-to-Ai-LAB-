@@ -30,19 +30,51 @@ def _default_locations(country):
         f"{name} Central Park",
     ]
 
+def _normalize_currencies(raw):
+    if not isinstance(raw, dict):
+        return []
+    result = []
+    for cur in raw.values():
+        if not isinstance(cur, dict):
+            continue
+        result.append({
+            "name": cur.get("name") or "",
+            "symbol": cur.get("symbol") or "",
+        })
+    return result
+
+
 def fetch_all_countries():
     if _cache:
         return _cache  # already fetched, reuse
-    
-    res = requests.get("https://www.apicountries.com/countries")
+
+    url = "https://restcountries.com/v3.1/all"
+    fields = "name,cca3,capital,region,population,latlng,borders,currencies"
+    res = requests.get(url, params={"fields": fields}, timeout=20)
+    res.raise_for_status()
     countries = res.json()
-    
+
     for c in countries:
+        name = (c.get("name") or {}).get("common") or ""
+        capital_list = c.get("capital") or []
+        capital = capital_list[0] if capital_list else ""
+        normalized = {
+            "alpha3Code": c.get("cca3") or "",
+            "name": name,
+            "capital": capital,
+            "region": c.get("region") or "",
+            "population": c.get("population") or 0,
+            "latlng": c.get("latlng") or [],
+            "borders": c.get("borders") or [],
+            "currencies": _normalize_currencies(c.get("currencies")),
+        }
+        if not normalized["alpha3Code"]:
+            continue
+
         # attach famous locations for all countries (overrides + fallback)
-        if "famous_locations" not in c:
-            c["famous_locations"] = _FAMOUS_OVERRIDES.get(c.get("name"), _default_locations(c))
-        _cache[c["alpha3Code"]] = c  # key = "PAK", "IND" etc
-    
+        normalized["famous_locations"] = _FAMOUS_OVERRIDES.get(name, _default_locations(normalized))
+        _cache[normalized["alpha3Code"]] = normalized  # key = "PAK", "IND" etc
+
     return _cache
 
 def get_country(code):
