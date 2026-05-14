@@ -273,6 +273,7 @@ class DashboardFrame(ctk.CTkFrame):
 		self.content.grid_rowconfigure(0, weight=1)
 		self.content.grid_columnconfigure(0, weight=1)
 
+		self.home_view = HomeView(self.content, self.show_view)
 		self.chat_view = ChatView(self.content, self.api)
 		self.profile_view = ProfileView(self.content, self.api)
 
@@ -281,7 +282,9 @@ class DashboardFrame(ctk.CTkFrame):
 	def show_view(self, name: str) -> None:
 		for child in self.content.winfo_children():
 			child.grid_forget()
-		if name in ("Home", "AI Tour Chatbot"):
+		if name == "Home":
+			self.home_view.grid(row=0, column=0, sticky="nsew")
+		elif name == "AI Tour Chatbot":
 			self.chat_view.grid(row=0, column=0, sticky="nsew")
 		elif name == "Profile":
 			self.profile_view.grid(row=0, column=0, sticky="nsew")
@@ -332,6 +335,47 @@ class Sidebar(ctk.CTkFrame):
 		btn.grid(row=row, column=0, padx=20, pady=8, sticky="ew")
 
 
+class HomeView(ctk.CTkFrame):
+	def __init__(self, master, on_nav) -> None:
+		super().__init__(master, fg_color=THEME["bg"])
+		self.on_nav = on_nav
+
+		self.grid_rowconfigure(0, weight=1)
+		self.grid_rowconfigure(1, weight=1)
+		self.grid_rowconfigure(2, weight=1)
+		self.grid_columnconfigure(0, weight=1)
+
+		ctk.CTkLabel(
+			self,
+			text="AI Tour Guide System",
+			text_color=THEME["text"],
+			font=ctk.CTkFont("Segoe UI", 40, "bold"),
+		).grid(row=1, column=0, sticky="s")
+
+		button_row = ctk.CTkFrame(self, fg_color=THEME["bg"], corner_radius=0)
+		button_row.grid(row=2, column=0, pady=(20, 80))
+
+		ctk.CTkButton(
+			button_row,
+			text="Set Preference",
+			fg_color=THEME["accent"],
+			hover_color="#f11f2b",
+			width=220,
+			height=46,
+			command=lambda: self.on_nav("Profile"),
+		).grid(row=0, column=0, padx=10)
+
+		ctk.CTkButton(
+			button_row,
+			text="Chat With Tour Agent",
+			fg_color="#2b2b2b",
+			hover_color="#3a3a3a",
+			width=260,
+			height=46,
+			command=lambda: self.on_nav("AI Tour Chatbot"),
+		).grid(row=0, column=1, padx=10)
+
+
 class ChatView(ctk.CTkFrame):
 	def __init__(self, master, api: ApiClient) -> None:
 		super().__init__(master, fg_color=THEME["bg"])
@@ -340,12 +384,11 @@ class ChatView(ctk.CTkFrame):
 		self.last_response = ""
 
 		self.grid_rowconfigure(1, weight=1)
-		self.grid_columnconfigure(0, weight=3)
-		self.grid_columnconfigure(1, weight=2)
+		self.grid_columnconfigure(0, weight=1)
 
 		header = ctk.CTkFrame(self, fg_color=THEME["bg"], corner_radius=0)
 		header.grid(row=0, column=0, columnspan=2, sticky="ew", padx=20, pady=(20, 10))
-		header.grid_columnconfigure(1, weight=1)
+		header.grid_columnconfigure(0, weight=1)
 
 		ctk.CTkLabel(
 			header,
@@ -354,32 +397,14 @@ class ChatView(ctk.CTkFrame):
 			font=ctk.CTkFont("Segoe UI", 22, "bold"),
 		).grid(row=0, column=0, sticky="w")
 
-		self.search_entry = ctk.CTkEntry(
-			header,
-			placeholder_text="Search history",
-			height=36,
-			fg_color="#1f1f1f",
-			text_color=THEME["text"],
-		)
-		self.search_entry.grid(row=0, column=1, padx=12, sticky="ew")
 
-		ctk.CTkButton(
-			header,
-			text="Search",
-			fg_color=THEME["accent"],
-			hover_color="#f11f2b",
-			width=110,
-			command=self.search_history,
-		).grid(row=0, column=2, padx=(8, 0))
 
 		self.chat_area = ctk.CTkScrollableFrame(self, fg_color=THEME["bg"], corner_radius=0)
-		self.chat_area.grid(row=1, column=0, sticky="nsew", padx=(20, 10), pady=(0, 20))
-
-		self.cards_area = ctk.CTkScrollableFrame(self, fg_color=THEME["bg"], corner_radius=0)
-		self.cards_area.grid(row=1, column=1, sticky="nsew", padx=(10, 20), pady=(0, 20))
+		self.chat_area.grid(row=1, column=0, sticky="nsew", padx=20, pady=(0, 20))
+		self._bind_smooth_scroll(self.chat_area)
 
 		input_bar = ctk.CTkFrame(self, fg_color=THEME["bg"], corner_radius=0)
-		input_bar.grid(row=2, column=0, columnspan=2, sticky="ew", padx=20, pady=(0, 20))
+		input_bar.grid(row=2, column=0, columnspan=1, sticky="ew", padx=20, pady=(0, 20))
 		input_bar.grid_columnconfigure(0, weight=1)
 
 		self.message_entry = ctk.CTkEntry(
@@ -504,10 +529,8 @@ class ChatView(ctk.CTkFrame):
 		step(1)
 
 	def _render_cards(self, content: str) -> None:
-		for child in self.cards_area.winfo_children():
-			child.destroy()
 		for title, items in parse_sections(content):
-			card = ctk.CTkFrame(self.cards_area, fg_color=THEME["card"], corner_radius=18)
+			card = ctk.CTkFrame(self.chat_area, fg_color=THEME["card"], corner_radius=18)
 			card.pack(fill="x", padx=6, pady=8)
 
 			ctk.CTkLabel(
@@ -528,6 +551,14 @@ class ChatView(ctk.CTkFrame):
 
 			ctk.CTkLabel(card, text="", height=2).pack(pady=(0, 8))
 
+	def _bind_smooth_scroll(self, frame: ctk.CTkScrollableFrame) -> None:
+		canvas = frame._parent_canvas
+
+		def on_mousewheel(event: tk.Event) -> None:
+			canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+		frame.bind_all("<MouseWheel>", on_mousewheel)
+
 	def save_favorite(self) -> None:
 		if not self.last_response:
 			messagebox.showinfo("Favorites", "Generate a recommendation first.")
@@ -539,19 +570,7 @@ class ChatView(ctk.CTkFrame):
 		except Exception as exc:
 			messagebox.showerror("Favorites", str(exc))
 
-	def search_history(self) -> None:
-		keyword = self.search_entry.get().strip()
-		try:
-			results = self.api.search(keyword)
-		except Exception as exc:
-			messagebox.showerror("Search", str(exc))
-			return
-		if not results:
-			messagebox.showinfo("Search", "No history found.")
-			return
-		latest = results[0]
-		self.add_message("assistant", f"History match: {latest.get('query', '')}")
-		self._render_cards(latest.get("response", ""))
+
 
 
 class ProfileView(ctk.CTkFrame):

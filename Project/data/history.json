@@ -2,6 +2,12 @@
   "history": {
     "ali": [
       {
+        "id": "e32919ec-89d7-456c-ab5e-70d0b65f689e",
+        "timestamp": 1778782250,
+        "query": "Tell me About Delhi",
+        "response": "I\u2019m sorry, but I can only provide information for Rome, Cairo, or Istanbul.  \nWould you like details on one of those cities instead?"
+      },
+      {
         "id": "c919bdc9-19d9-45f3-871a-37bcfb7c48d1",
         "timestamp": 1778781388,
         "query": "i want to visit cuba",
