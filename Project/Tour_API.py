@@ -82,15 +82,39 @@ def build_prompt(profile: Dict[str, Any], extra_context: str) -> str:
 	return (
 		"You are an AI tour guide. Keep answers short and clean with headings and bullet points. "
 		"Use these headings exactly: Tourist Attractions, Cheap Hotels, Premium Hotels, Estimated Cost, "
-		"Food Recommendations, Packing Suggestions, Usual Weather, Travel Tips. "
+		"Food Recommendations, Packing Suggestions, Usual Weather, Currency. "
 		"Avoid long paragraphs. Give 3-6 bullets per section. "
+		"If the user mentions a city or country, respond specifically to that location. "
+		"Never limit to a fixed list of destinations; rule-based destinations are only optional examples. "
+		"Currency section must clearly state the local currency name and symbol. "
 		"User Profile: "
 		f"Name={profile.get('name')}, Age={profile.get('age')}, Country={profile.get('country')}, "
 		f"People={profile.get('people')}, Preference={profile.get('preference')}, "
 		f"Weather={profile.get('weather')}, Food={profile.get('food')}. "
-		f"Rule-based destinations: {destinations}. "
+		f"Rule-based destinations (examples only): {destinations}. "
 		f"Extra context: {extra_context}"
 	)
+
+
+def get_local_response(message: str) -> str | None:
+	text = message.strip().lower()
+	if not text:
+		return "Hi! Share a destination or travel style, and I will help."
+
+	greetings = ("hi", "hello", "hey", "assalam", "salam")
+	if text.startswith(greetings) or text in greetings:
+		return "Hello! Tell me a city or country and your travel style."
+
+	if "how are you" in text:
+		return "I am great, thanks for asking. Ready to plan your trip."
+
+	if "can you help" in text or "help me" in text:
+		return "Yes. Tell me your destination, budget, and preference."
+
+	if "what can you do" in text or "what do you do" in text:
+		return "I suggest tours, hotels, costs, food, and packing tips."
+
+	return None
 
 
 def call_groq(prompt: str) -> str:
@@ -111,8 +135,8 @@ def call_groq(prompt: str) -> str:
 			"- Sunscreen\n- Light jackets\n\n"
 			"Usual Weather:\n"
 			"- Warm, breezy evenings\n\n"
-			"Travel Tips:\n"
-			"- Book island transfers early\n"
+			"Currency:\n"
+			"- Local Currency: USD, Symbol: $\n"
 		)
 
 	client = OpenAI(
@@ -237,6 +261,10 @@ def recommendations() -> Any:
 
 	payload = request.json or {}
 	user_query = payload.get("query", "")
+
+	local_reply = get_local_response(user_query)
+	if local_reply:
+		return jsonify({"content": local_reply})
 
 	profiles = read_json(PROFILES_FILE)
 	profile = profiles["profiles"].get(username, {})
