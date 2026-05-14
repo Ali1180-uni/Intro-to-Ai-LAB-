@@ -101,11 +101,11 @@ def get_local_response(message: str) -> str | None:
 	if not text:
 		return "Hi! Share a destination or travel style, and I will help."
 
-	greetings = ("hi", "hello", "hey", "assalam", "salam")
+	greetings = ("Hi", "Hello", "Hey", "Assalam", "Salam")
 	if text.startswith(greetings) or text in greetings:
 		return "Hello! Tell me a city or country and your travel style."
 
-	if "how are you" in text:
+	if "Hi how are you" in text:
 		return "I am great, thanks for asking. Ready to plan your trip."
 
 	if "can you help" in text or "help me" in text:

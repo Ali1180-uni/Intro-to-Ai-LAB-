@@ -161,7 +161,7 @@ class LoginFrame(ctk.CTkFrame):
 
 		subtitle = ctk.CTkLabel(
 			brand_panel,
-			text="Smart travel planning\nNetflix-inspired premium UI",
+			text="Smart travel planning System\n M. Ali - 1180 \nFahad - 1221",
 			text_color=THEME["muted"],
 			font=ctk.CTkFont("Segoe UI", 16),
 		)
@@ -609,7 +609,7 @@ class ProfileView(ctk.CTkFrame):
 		)
 		self.food_menu = self._add_option(
 			form, "Food Preference", 3, 0,
-			["Seafood", "Local", "Vegetarian", "Street Food", "Any"],
+			["Seafood", "Local", "Vegetarian", "Street Food"],
 		)
 
 		save_btn = ctk.CTkButton(
