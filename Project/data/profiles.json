@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "ali": {
+      "name": "Ali",
+      "age": "19",
+      "country": "India",
+      "people": "3",
+      "preference": "Historical",
+      "weather": "Cold",
+      "food": "Street Food"
+    }
+  }
+}
